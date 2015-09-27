@@ -1,5 +1,5 @@
 ---
-title: "predict_movement"
+title: "Predict the Quality of Movements"
 author: "xiao"
 date: "September 24, 2015"
 output: html_document
@@ -10,23 +10,38 @@ Load the data, and prepare for cross validation. Taking some quick look at the d
 ```{r}
 setwd("~/git/practical_machine_learning/")
 pml_train <- read.csv("pml-training.csv")
-dim(pml_train)
+pml_test <- read.csv("pml-testing.csv")
 
+summary(pml_train$classe)
+```
+
+Clean the data slightly to only include data available in the testing set, also remove id number to avoid overfitting, based on the nature of the problem, id number shouldn't contain material information.
+
+```{r}
 library(AppliedPredictiveModeling)
 library(caret)
+# find out the columns that are unavailable in the testing set
+unmeasured <- which(colSums(is.na(pml_test))==20)
+# do not use these columns in the testing set
+pml_train <- pml_train[,-unmeasured]
+# eliminate id number to avoid overfitting
+pml_train <- pml_train[,-1]
+
 inTrain = createDataPartition(pml_train$classe, p = 3/4)[[1]]
 training <- pml_train[inTrain,]
 testing <- pml_train[-inTrain,]
 ```
 
-train a model with random forest
+Train a model with random forest, check its out of sample performance to see if random forest overfit. The in sample and out of sample results are fairly consistent, will use this as the final solution.
 
 ```{r, echo=FALSE}
-mymodel = train(classe~., method='rf', data=training, trControl=trainControl(method="cv",number=5),
-                prox=TRUE,allowParallel=TRUE, ntree = 10)
+mymodel = train(classe~., method='rf', data=training, trControl=trainControl(method="cv",number=5),prox=TRUE,allowParallel=TRUE,ntree = 10)
 summary(mymodel)
 plot(mymodel)
 
 predicted_class <- predict(mymodel, newdata = testing)
+accuracy <- sum(predicted_class == testing$classe)/length(predicted_class)
+accuracy
 pml_test <- read.csv("pml-testing.csv")
+answers <- predict(mymodel, newdata = pml_test)
 ```

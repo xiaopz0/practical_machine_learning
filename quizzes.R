@@ -2,7 +2,7 @@
 library(AppliedPredictiveModeling)
 data(segmentationOriginal)
 library(caret)
-
+attach(segmentationOriginal)
 training <- segmentationOriginal[Case=="Train",]
 testing <- segmentationOriginal[Case=="Test",]
 set.seed(125)
@@ -14,10 +14,10 @@ c  = data.frame(TotalIntenCh2 = 57000, FiberWidthCh1 = 8,VarIntenCh4 = 100)
 d = data.frame( FiberWidthCh1 = 8,VarIntenCh4 = 100, PerimStatusCh1=2)
 
 new_data = merge(merge(merge(a,b,all=T),c,all = T),d,all = T)
-all_data = merge(testing,new_data,all = T)
+all_data = merge(testing,new_data,all =F)
 all_data[1011:1014,]
 
-predict(mymodel, newdata=all_data[1011:1014,])
+predict(mymodel, newdata=new_data)
 
 ################
 library(ElemStatLearn)
