@@ -34,7 +34,7 @@ testing <- pml_train[-inTrain,]
 
 Train a model with random forest, check its out of sample performance to see if random forest overfit. The in sample and out of sample results are fairly consistent, will use this as the final solution.
 
-```{r, echo=FALSE}
+```{r}
 mymodel = train(classe~., method='rf', data=training, trControl=trainControl(method="cv",number=5),prox=TRUE,allowParallel=TRUE,ntree = 10)
 summary(mymodel)
 plot(mymodel)
